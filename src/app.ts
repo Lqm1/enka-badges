@@ -3,7 +3,6 @@ import { swagger } from "@elysiajs/swagger";
 import { GenshinGen } from "./routes/genshin";
 
 export const app = new Elysia({ aot: false }).onError(({ code, error }) => {
-    console.log(code);
     return new Response(JSON.stringify({ error: error.toString() ?? code }), {
         status: 500,
     });
