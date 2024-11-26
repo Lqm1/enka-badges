@@ -12,7 +12,7 @@
         "@elysiajs/swagger": "^1.1.6",
         "badge-maker": "^4.1.0",
         "elysia": "latest",
-        "enka-network-api": "^4.6.3",
+        "enkanetwork.js": "^2.9.1",
         "wrangler": "^3.90.0"
     },
     "devDependencies": {

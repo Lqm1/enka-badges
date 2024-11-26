@@ -1,11 +1,10 @@
 import { Elysia } from "elysia";
-import { EnkaClient } from "enka-network-api";
+import { Wrapper } from "enkanetwork.js";
 import { makeBadge, ValidationError } from "badge-maker";
 
-const enka = new EnkaClient({ userAgent: "EnkaBadges/enkabadges.mikn.dev" });
-enka.cachedAssetsManager.cacheDirectoryPath = "./cache";
-enka.cachedAssetsManager.cacheDirectorySetup();
-enka.cachedAssetsManager.fetchAllContents();
+const { genshin } = new Wrapper({
+    userAgent: "EnkaBadges/enkabadges.mikn.dev",
+});
 
 const ErrorBadge = {
     label: "error",
@@ -37,7 +36,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
 
         let userData;
         try {
-            userData = await enka.fetchUser(uid);
+            userData = await genshin.getPlayer(uid);
         } catch (error) {
             return new Response(makeBadge(NotFoundBadge), {
                 headers: {
@@ -48,7 +47,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "ar") {
-            const ar = userData.level;
+            const ar = userData.player.levels.rank;
             return new Response(
                 makeBadge({
                     label: "Genshin Impact",
