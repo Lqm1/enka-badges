@@ -3,6 +3,7 @@ import { EnkaClient } from "enka-network-api";
 import { makeBadge, ValidationError } from "badge-maker";
 
 const enka = new EnkaClient({ userAgent: "EnkaBadges/enkabadges.mikn.dev" });
+enka.cachedAssetsManager.cacheDirectoryPath = "./cache";
 enka.cachedAssetsManager.cacheDirectorySetup();
 enka.cachedAssetsManager.fetchAllContents();
 
