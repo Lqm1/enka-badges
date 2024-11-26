@@ -23,9 +23,15 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
     async (context) => {
         const {
             params: { uid, type },
+            query
         } = context;
 
-        if (type !== "ar" && type !== "abyss" && type !== "wl" && type !== "achievements") {
+        if (
+            type !== "ar" &&
+            type !== "abyss" &&
+            type !== "wl" &&
+            type !== "achievements"
+        ) {
             return new Response(makeBadge(ErrorBadge), {
                 headers: {
                     "Content-Type": "image/svg+xml",
@@ -47,12 +53,60 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "ar") {
-            const ar = userData.player.levels.rank;
+            const data = userData.player.levels.rank;
             return new Response(
                 makeBadge({
-                    label: "Genshin Impact",
-                    message: `AR ${ar.toString()}`,
-                    color: "blue",
+                    label: query.title || "Genshin Impact",
+                    message: `${query.prefix || "AR"} ${data.toString()}`,
+                    color: query.colour || "blue",
+                }),
+                {
+                    headers: {
+                        "Content-Type": "image/svg+xml",
+                    },
+                },
+            );
+        }
+
+        if (type === "wl") {
+            const data = userData.player.levels.world;
+            return new Response(
+                makeBadge({
+                    label: query.title || "Genshin Impact",
+                    message: `${query.prefix || "WL"} ${data.toString()}`,
+                    color: query.colour || "blue",
+                }),
+                {
+                    headers: {
+                        "Content-Type": "image/svg+xml",
+                    },
+                },
+            );
+        }
+
+        if (type === "abyss") {
+            const data = `${userData.player.abyss.floor} - ${userData.player.abyss.chamber}`;
+            return new Response(
+                makeBadge({
+                    label: query.title || "Genshin Impact",
+                    message: `${query.prefix || "Abyss"} ${data.toString()}`,
+                    color: query.colour || "blue",
+                }),
+                {
+                    headers: {
+                        "Content-Type": "image/svg+xml",
+                    },
+                },
+            );
+        }
+
+        if (type === "achievements") {
+            const data = userData.player.achievements;
+            return new Response(
+                makeBadge({
+                    label: query.title || "Genshin Impact",
+                    message: `${query.prefix || "Achievments:"} ${data.toString()}`,
+                    color: query.colour || "blue",
                 }),
                 {
                     headers: {
