@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { Wrapper } from "enkanetwork.js";
 import { makeBadge, ValidationError } from "badge-maker";
 
-const { genshin } = new Wrapper({
+const { starrail } = new Wrapper({
     userAgent: "EnkaBadges/enkabadges.mikn.dev",
 });
 
@@ -18,7 +18,7 @@ const NotFoundBadge = {
     color: "red",
 };
 
-export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
+export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
     "/:uid/:type",
     async (context) => {
         const {
@@ -27,11 +27,13 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         } = context;
 
         if (
-            type !== "ar" &&
-            type !== "abyss" &&
-            type !== "wl" &&
+            type !== "tl" &&
+            type !== "su" &&
+            type !== "eq" &&
             type !== "achievements" &&
-            type !== "theater"
+            type !== "characters" &&
+            type !== "lcs" &&
+            type !== "relics"
         ) {
             return new Response(makeBadge(ErrorBadge), {
                 headers: {
@@ -53,7 +55,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
 
         let userData;
         try {
-            userData = await genshin.getPlayer(uid);
+            userData = await starrail.getPlayer(uid);
         } catch (error) {
             return new Response(makeBadge(NotFoundBadge), {
                 headers: {
@@ -63,12 +65,12 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             });
         }
 
-        if (type === "ar") {
-            const data = userData.player.levels.rank;
+        if (type === "tl") {
+            const data = userData.player.level;
             return new Response(
                 makeBadge({
-                    label: query.title || "Genshin Impact",
-                    message: `${query.prefix || "AR"} ${data.toString()}`,
+                    label: query.title || "Honkai: Star Rail",
+                    message: `${query.prefix || "TL"} ${data.toString()}`,
                     color: query.colour || "blue",
                     style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
@@ -80,12 +82,12 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             );
         }
 
-        if (type === "wl") {
-            const data = userData.player.levels.world;
+        if (type === "eq") {
+            const data = userData.player.equilibriumLevel;
             return new Response(
                 makeBadge({
-                    label: query.title || "Genshin Impact",
-                    message: `${query.prefix || "WL"} ${data.toString()}`,
+                    label: query.title || "Honkai: Star Rail",
+                    message: `${query.prefix || "EQ"} ${data.toString()}`,
                     color: query.colour || "blue",
                     style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
@@ -97,12 +99,12 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             );
         }
 
-        if (type === "abyss") {
-            const data = `${userData.player.abyss.floor} - ${userData.player.abyss.chamber}`;
+        if (type === "su") {
+            const data = userData.player.recordInfo.simulatedUniverseLastFinishedWorld;
             return new Response(
                 makeBadge({
-                    label: query.title || "Genshin Impact",
-                    message: `${query.prefix || "Abyss"} ${data.toString()}`,
+                    label: query.title || "Honkai: Star Rail",
+                    message: `${query.prefix || "SU World"} ${data.toString()}`,
                     color: query.colour || "blue",
                     style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
@@ -115,10 +117,10 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "achievements") {
-            const data = userData.player.achievements;
+            const data = userData.player.recordInfo.achievementCount;
             return new Response(
                 makeBadge({
-                    label: query.title || "Genshin Impact",
+                    label: query.title || "Honkai: Star Rail",
                     message: `${query.prefix || "Achievments:"} ${data.toString()}`,
                     color: query.colour || "blue",
                     style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
@@ -131,12 +133,46 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             );
         }
 
-        if (type === "theater") {
-            const data = `${userData.player.theaterAct} - ★ ${userData.player.theaterStars}`;
+        if (type === "characters") {
+            const data = userData.player.recordInfo.charactersObtained;
             return new Response(
                 makeBadge({
-                    label: query.title || "Genshin Impact",
-                    message: `${query.prefix || "Theater Act"} ${data.toString()}`,
+                    label: query.title || "Honkai: Star Rail",
+                    message: `${data.toString()} ${query.prefix || "Characters obtained"}`,
+                    color: query.colour || "blue",
+                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                }),
+                {
+                    headers: {
+                        "Content-Type": "image/svg+xml",
+                    },
+                },
+            );
+        }
+
+        if (type === "lcs") {
+            const data = userData.player.recordInfo.lightConesObtained;
+            return new Response(
+                makeBadge({
+                    label: query.title || "Honkai: Star Rail",
+                    message: `${data.toString()} ${query.prefix || "LCs obtained"}`,
+                    color: query.colour || "blue",
+                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                }),
+                {
+                    headers: {
+                        "Content-Type": "image/svg+xml",
+                    },
+                },
+            );
+        }
+
+        if (type === "relics") {
+            const data = userData.player.recordInfo.relicsOwned;
+            return new Response(
+                makeBadge({
+                    label: query.title || "Honkai: Star Rail",
+                    message: `${data.toString()} ${query.prefix || "Relics owned"}`,
                     color: query.colour || "blue",
                     style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
