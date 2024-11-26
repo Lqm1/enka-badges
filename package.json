@@ -1,18 +1,22 @@
 {
-  "name": "elysia",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts"
-  },
-  "dependencies": {
-    "badge-maker": "^4.1.0",
-    "elysia": "latest",
-    "wrangler": "^3.90.0"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "name": "elysia",
+    "version": "1.0.50",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "bun run --watch src/index.ts",
+        "deploy": "wrangler deploy --minify src/index.ts",
+        "format": "biome format --write ."
+    },
+    "dependencies": {
+        "@biomejs/biome": "^1.9.4",
+        "@elysiajs/swagger": "^1.1.6",
+        "badge-maker": "^4.1.0",
+        "elysia": "latest",
+        "enka-network-api": "^4.6.3",
+        "wrangler": "^3.90.0"
+    },
+    "devDependencies": {
+        "bun-types": "latest"
+    },
+    "module": "src/index.js"
 }
