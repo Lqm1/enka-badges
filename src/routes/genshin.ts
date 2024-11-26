@@ -40,6 +40,16 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             });
         }
 
+        const allowedStyles = ["plastic", "flat", "flat-square", "for-the-badge", "social"];
+        if(query.style && !allowedStyles.includes(query.style)) {
+            return new Response(makeBadge(ErrorBadge), {
+                headers: {
+                    "Content-Type": "image/svg+xml",
+                },
+                status: 400,
+            });
+        }
+
         let userData;
         try {
             userData = await genshin.getPlayer(uid);
@@ -59,6 +69,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "AR"} ${data.toString()}`,
                     color: query.colour || "blue",
+                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
                 {
                     headers: {
@@ -75,6 +86,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "WL"} ${data.toString()}`,
                     color: query.colour || "blue",
+                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
                 {
                     headers: {
@@ -91,6 +103,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "Abyss"} ${data.toString()}`,
                     color: query.colour || "blue",
+                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
                 {
                     headers: {
@@ -107,6 +120,7 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "Achievments:"} ${data.toString()}`,
                     color: query.colour || "blue",
+                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
                 }),
                 {
                     headers: {
