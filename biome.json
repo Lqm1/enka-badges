@@ -7,6 +7,6 @@
         "enabled": true,
         "indentWidth": 4,
         "indentStyle": "space",
-        "ignore": [".wrangler/"]
+        "ignore": [".wrangler/", "worker-configuration.d.ts"]
     }
 }
