@@ -1,4 +1,4 @@
-import Elysia, {redirect} from "elysia";
+import Elysia, { redirect } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { GenshinGen } from "./routes/genshin";
 import { HsrGen } from "./routes/hsr";
@@ -14,7 +14,7 @@ app.use(
         documentation: {
             info: {
                 title: "EnkaBadges API",
-                version: "1.0.0"
+                version: "1.0.0",
             },
         },
     }),
