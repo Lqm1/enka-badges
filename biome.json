@@ -3,6 +3,9 @@
     "organizeImports": {
         "enabled": true
     },
+    "files": {
+        "ignore": ["worker-configuration.d.ts"]
+    },
     "formatter": {
         "enabled": true,
         "indentWidth": 4,
