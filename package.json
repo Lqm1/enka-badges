@@ -5,6 +5,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "bun run --watch src/index.ts",
         "deploy": "wrangler deploy --minify src/index.ts",
+        "preview": "wrangler dev src/index.ts",
         "format": "biome format --write ."
     },
     "dependencies": {
@@ -12,11 +13,11 @@
         "@elysiajs/swagger": "^1.1.6",
         "badge-maker": "^4.1.0",
         "elysia": "latest",
-        "enkanetwork.js": "^2.10.5",
-        "wrangler": "^3.90.0"
+        "ky": "^1.7.5"
     },
     "devDependencies": {
-        "bun-types": "latest"
+        "bun-types": "latest",
+        "wrangler": "4"
     },
     "module": "src/index.js"
 }

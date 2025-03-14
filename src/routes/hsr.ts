@@ -1,10 +1,9 @@
 import { Elysia } from "elysia";
-import { Wrapper } from "enkanetwork.js";
-import { makeBadge, ValidationError } from "badge-maker";
+import { makeBadge } from "badge-maker";
+import { HonkaiStarRailClient } from "../lib/enka-network";
+import { HTTPError } from "ky";
 
-const { starrail } = new Wrapper({
-    userAgent: "EnkaBadges/enkabadges.mikn.dev",
-});
+const hsr = new HonkaiStarRailClient();
 
 const ErrorBadge = {
     label: "error",
@@ -18,12 +17,18 @@ const NotFoundBadge = {
     color: "red",
 };
 
+const InternalServerErrorBadge = {
+    label: "error",
+    message: "Internal Server Error",
+    color: "red",
+};
+
 export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
     "/:uid/:type",
     async (context) => {
         const {
             params: { uid, type },
-            query
+            query,
         } = context;
 
         if (
@@ -43,8 +48,14 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
             });
         }
 
-        const allowedStyles = ["plastic", "flat", "flat-square", "for-the-badge", "social"];
-        if(query.style && !allowedStyles.includes(query.style)) {
+        const allowedStyles = [
+            "plastic",
+            "flat",
+            "flat-square",
+            "for-the-badge",
+            "social",
+        ];
+        if (query.style && !allowedStyles.includes(query.style)) {
             return new Response(makeBadge(ErrorBadge), {
                 headers: {
                     "Content-Type": "image/svg+xml",
@@ -53,26 +64,43 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
             });
         }
 
-        let userData;
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        let userData: any;
         try {
-            userData = await starrail.getPlayer(uid);
+            userData = await hsr.get(uid);
         } catch (error) {
-            return new Response(makeBadge(NotFoundBadge), {
+            if (error instanceof HTTPError) {
+                if (error.response.status === 404) {
+                    return new Response(makeBadge(NotFoundBadge), {
+                        headers: {
+                            "Content-Type": "image/svg+xml",
+                        },
+                        status: 404,
+                    });
+                }
+            }
+            return new Response(makeBadge(InternalServerErrorBadge), {
                 headers: {
                     "Content-Type": "image/svg+xml",
                 },
-                status: 404,
+                status: 500,
             });
         }
 
         if (type === "tl") {
-            const data = userData.player.level;
+            const data: number = userData.detailInfo.level;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${query.prefix || "TL"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -83,13 +111,19 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
         }
 
         if (type === "eq") {
-            const data = userData.player.equilibriumLevel;
+            const data: number = userData.detailInfo.worldLevel ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${query.prefix || "EQ"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -100,13 +134,20 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
         }
 
         if (type === "su") {
-            const data = userData.player.recordInfo.simulatedUniverseLastFinishedWorld;
+            const data: number =
+                userData.detailInfo.recordInfo.maxRogueChallengeScore ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${query.prefix || "SU World"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -117,13 +158,20 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
         }
 
         if (type === "achievements") {
-            const data = userData.player.recordInfo.achievementCount;
+            const data: number =
+                userData.detailInfo.recordInfo.achievementCount ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${query.prefix || "Achievments:"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -134,13 +182,20 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
         }
 
         if (type === "characters") {
-            const data = userData.player.recordInfo.charactersObtained;
+            const data: number =
+                userData.detailInfo.recordInfo.avatarCount ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${data.toString()} ${query.prefix || "Characters obtained"}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -151,13 +206,20 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
         }
 
         if (type === "lcs") {
-            const data = userData.player.recordInfo.lightConesObtained;
+            const data: number =
+                userData.detailInfo.recordInfo.equipmentCount ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${data.toString()} ${query.prefix || "LCs obtained"}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -168,13 +230,19 @@ export const HsrGen = new Elysia({ prefix: "/hsr" }).get(
         }
 
         if (type === "relics") {
-            const data = userData.player.recordInfo.relicsOwned;
+            const data: number = userData.detailInfo.recordInfo.relicCount ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Honkai: Star Rail",
                     message: `${data.toString()} ${query.prefix || "Relics owned"}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {

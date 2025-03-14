@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
-import { Wrapper } from "enkanetwork.js";
-import { makeBadge, ValidationError } from "badge-maker";
+import { makeBadge } from "badge-maker";
+import { GenshinImpactClient } from "../lib/enka-network";
+import type { Response } from "../types/enka-network";
+import { HTTPError } from "ky";
 
-const { genshin } = new Wrapper({
-    userAgent: "EnkaBadges/enkabadges.mikn.dev",
-});
+const genshin = new GenshinImpactClient();
 
 const ErrorBadge = {
     label: "error",
@@ -18,12 +18,18 @@ const NotFoundBadge = {
     color: "red",
 };
 
+const InternalServerErrorBadge = {
+    label: "error",
+    message: "Internal Server Error",
+    color: "red",
+};
+
 export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
     "/:uid/:type",
     async (context) => {
         const {
             params: { uid, type },
-            query
+            query,
         } = context;
 
         if (
@@ -41,8 +47,14 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             });
         }
 
-        const allowedStyles = ["plastic", "flat", "flat-square", "for-the-badge", "social"];
-        if(query.style && !allowedStyles.includes(query.style)) {
+        const allowedStyles = [
+            "plastic",
+            "flat",
+            "flat-square",
+            "for-the-badge",
+            "social",
+        ];
+        if (query.style && !allowedStyles.includes(query.style)) {
             return new Response(makeBadge(ErrorBadge), {
                 headers: {
                     "Content-Type": "image/svg+xml",
@@ -51,26 +63,42 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
             });
         }
 
-        let userData;
+        let userData: Response;
         try {
-            userData = await genshin.getPlayer(uid);
+            userData = await genshin.get(uid, true);
         } catch (error) {
-            return new Response(makeBadge(NotFoundBadge), {
+            if (error instanceof HTTPError) {
+                if (error.response.status === 404) {
+                    return new Response(makeBadge(NotFoundBadge), {
+                        headers: {
+                            "Content-Type": "image/svg+xml",
+                        },
+                        status: 404,
+                    });
+                }
+            }
+            return new Response(makeBadge(InternalServerErrorBadge), {
                 headers: {
                     "Content-Type": "image/svg+xml",
                 },
-                status: 404,
+                status: 500,
             });
         }
 
         if (type === "ar") {
-            const data = userData.player.levels.rank;
+            const data = userData.playerInfo.level;
             return new Response(
                 makeBadge({
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "AR"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -81,13 +109,19 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "wl") {
-            const data = userData.player.levels.world;
+            const data = userData.playerInfo.worldLevel ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "WL"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -98,13 +132,19 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "abyss") {
-            const data = `${userData.player.abyss.floor} - ${userData.player.abyss.chamber}`;
+            const data = `${userData.playerInfo.towerFloorIndex ?? 0} - ${userData.playerInfo.towerLevelIndex ?? 0}`;
             return new Response(
                 makeBadge({
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "Abyss"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -115,13 +155,19 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "achievements") {
-            const data = userData.player.achievements;
+            const data = userData.playerInfo.finishAchievementNum ?? 0;
             return new Response(
                 makeBadge({
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "Achievments:"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
@@ -132,13 +178,19 @@ export const GenshinGen = new Elysia({ prefix: "/genshin" }).get(
         }
 
         if (type === "theater") {
-            const data = `${userData.player.theaterAct} - ★ ${userData.player.theaterStars}`;
+            const data = `${userData.playerInfo.theaterActIndex ?? 0} - ★ ${userData.playerInfo.theaterStarIndex ?? 0}`;
             return new Response(
                 makeBadge({
                     label: query.title || "Genshin Impact",
                     message: `${query.prefix || "Theater Act"} ${data.toString()}`,
                     color: query.colour || "blue",
-                    style: query.style as "flat" | "plastic" | "flat-square" | "for-the-badge" | "social" || "flat",
+                    style:
+                        (query.style as
+                            | "flat"
+                            | "plastic"
+                            | "flat-square"
+                            | "for-the-badge"
+                            | "social") || "flat",
                 }),
                 {
                     headers: {
