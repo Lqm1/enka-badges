@@ -1,8 +1,12 @@
 # EnkaBadges
+[![Genshin Impact AR](https://enka-badges.lami.workers.dev/genshin/895578273/ar?style=for-the-badge&logo=genshin)](https://enka.network/u/895578273/)
+[![Honkai: Star Rail TL](https://enka-badges.lami.workers.dev/hsr/834466088/tl?style=for-the-badge&logo=hsr)](https://enka.network/hsr/834466088/)
+[![Zenless Zone Zero IL](https://enka-badges.lami.workers.dev/zzz/1311324570/il?style=for-the-badge&logo=zzz)](https://enka.network/zzz/1311324570/)
+<br>
 Show off your gacha game stats on your GitHub profile!<br>
 Generate shields.io style badges, like this!
 <br>
-![AR](https://enka-badges.lami.workers.dev/genshin/895578273/ar)
+![AR](http://enka-badges.lami.workers.dev/genshin/895578273/ar)
 <br>
 ![AR](https://enka-badges.lami.workers.dev/genshin/895578273/abyss?colour=ff7700&style=for-the-badge)
 <br>
